@@ -44,11 +44,30 @@ clean:
 	rm -f *.jar
 	rm -f *.class
 ```
+To keep line endings straight right from the beginning, create a ".gitattributes" file:
 
+```
+# Set default behavior where git decides what to do:
+
+* text=auto
+
+# Define special cases (shows various examples):
+
+*.txt    text
+*.class  binary
+*.jar    binary
+*.vcproj text eol=crlf
+*.sh     text eol=lf
+```
+
+Create the initial git repository (if one doesn't already exist):
+```
 cd Machine_A/myfiles/coolproj
 git init
 git add hello.java
 git add makefile
+git add .gitattributes
 git commit -m "Initial versions of hello.java and makefile in cool project." 
+```
 
 
