@@ -69,14 +69,14 @@ Machine_A$ git add makefile
 Machine_A$ git add .gitattributes
 Machine_A$ git commit -m "Initial versions of hello.java and makefile in cool project." 
 ```
-Now we're ready to create the initial bundle for the master branch of this repository. The bundle file can be created anywhere, but that location should remain fixed because it will be referenced from git as if it were a real repository. For this example, we will create it directly above our "coolproj" directory with a name of "coolproj.bundle". We do this with:
+Now we're ready to create the initial bundle for the master branch of this repository. The resulting bundle file can be created anywhere, but that location should remain fixed because it will be referenced from git as if it were a real repository. For this example, we will create it directly above our "coolproj" directory with a name of "coolproj.bundle". We do this with:
 
 ```
 Machine_A$ git bundle create ../coolproj.bundle master
 ```
 Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to:
 
-Machine_B/mystuff/test/coolproj.bundle
+.../Machine_B/mystuff/test/coolproj.bundle
 
 Then change directory to that location (cd ../../../Machine_B/mystuff/test) and issue the "git clone" command:
 
@@ -87,7 +87,7 @@ This will create a subdirectory named "coolproj" which is a duplicate of the ori
 
 This is where things get a little tricky. When git clones from a repository, it will generally create a "remote" from the location of the "upstream" source. Since this clone was done from a bundle file, the "remote" will be that file. Look inside the file:
 
-Machine_B/mystuff/test/coolproj/.git/config
+```Machine_B/mystuff/test/coolproj/.git/config```
 
 You should find something that looks like this:
 
@@ -124,7 +124,7 @@ It has no remote option. But we can add it manually (and possibly other ways) so
 	bare = false
 	logallrefupdates = true
 [remote "origin"]
-	url = / ... /Machine_A/myfiles/coolproj.bundle
+	url = /.../Machine_A/myfiles/coolproj.bundle
 	fetch = +refs/heads/*:refs/remotes/origin/*
 ```
 Remember to replace the "..." with your actual path.
@@ -155,7 +155,7 @@ Now create a new bundle to send back to Machine_A:
 ```
 Machine_B$ git bundle create ../coolproj.bundle master
 ```
-Just as before, that bundled file (Machine_B/mystuff/test/coolproj.bundle) can be transmitted by any means back to Machine_A. In this case, just copy the file to replace the version in Machine_A's location. Then in the Machine_A/myfiles/coolproj directory, execute a "git pull" and observe the changes:
+Just as before, that bundled file (Machine_B/mystuff/test/coolproj.bundle) can be transmitted by any means back to Machine_A. In this case, just copy the file to replace the version in Machine_A's location. Then in the Machine_A/myfiles/coolproj directory, execute a ```"git pull"``` and observe the changes:
 
 ```
 From / ... /Machine_A/myfiles/coolproj.bundle
