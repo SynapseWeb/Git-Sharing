@@ -69,5 +69,10 @@ git add makefile
 git add .gitattributes
 git commit -m "Initial versions of hello.java and makefile in cool project." 
 ```
+Now we're ready to create the initial bundle for the master branch of this repository. The bundle file can be created anywhere, but that location should remain fixed because it will be referenced from git as if it were a real repository. For this example, we will create it directly above our "coolproj" directory with a name of "coolproj.bundle". We do this with:
+
+```
+git bundle create ../coolproj.bundle master
+```
 
 
