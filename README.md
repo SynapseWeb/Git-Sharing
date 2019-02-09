@@ -74,5 +74,13 @@ Now we're ready to create the initial bundle for the master branch of this repos
 ```
 git bundle create ../coolproj.bundle master
 ```
+Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to:
 
+Machine_B/mystuff/test/coolproj.bundle
 
+Then change directory to that location (cd ../../../Machine_B/mystuff/test) and issue the "git clone" command:
+
+```
+git clone -b master coolproj.bundle coolproj
+```
+This will create a subdirectory named "coolproj" which is a duplicate of the original.
