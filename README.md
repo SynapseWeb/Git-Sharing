@@ -62,17 +62,17 @@ To keep line endings straight right from the beginning, create a ".gitattributes
 
 Create the initial git repository (if one doesn't already exist):
 ```
-cd Machine_A/myfiles/coolproj
-git init
-git add hello.java
-git add makefile
-git add .gitattributes
-git commit -m "Initial versions of hello.java and makefile in cool project." 
+Machine_A$ cd Machine_A/myfiles/coolproj
+Machine_A$ git init
+Machine_A$ git add hello.java
+Machine_A$ git add makefile
+Machine_A$ git add .gitattributes
+Machine_A$ git commit -m "Initial versions of hello.java and makefile in cool project." 
 ```
 Now we're ready to create the initial bundle for the master branch of this repository. The bundle file can be created anywhere, but that location should remain fixed because it will be referenced from git as if it were a real repository. For this example, we will create it directly above our "coolproj" directory with a name of "coolproj.bundle". We do this with:
 
 ```
-git bundle create ../coolproj.bundle master
+Machine_A$ git bundle create ../coolproj.bundle master
 ```
 Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to:
 
@@ -81,7 +81,7 @@ Machine_B/mystuff/test/coolproj.bundle
 Then change directory to that location (cd ../../../Machine_B/mystuff/test) and issue the "git clone" command:
 
 ```
-git clone -b master coolproj.bundle coolproj
+Machine_B$ git clone -b master coolproj.bundle coolproj
 ```
 This will create a subdirectory named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original.
 
@@ -115,7 +115,7 @@ Now if you look at the "config" file in your original "Machine_A" repository, yo
 	bare = false
 	logallrefupdates = true
 ```
-It has no remote option or no branch option. But we can add them manually (and possibly other ways) so that the bundle is the same as any remote repository that we can pull from. Change the file "/Machine_A/myfiles/coolproj/.git/config" to be:
+It has no remote option. But we can add it manually (and possibly other ways) so that the bundle is the same as any remote repository that we can pull from. Change the file "/Machine_A/myfiles/coolproj/.git/config" to be:
 
 ```
 [core]
@@ -126,9 +126,69 @@ It has no remote option or no branch option. But we can add them manually (and p
 [remote "origin"]
 	url = / ... /Machine_A/myfiles/coolproj.bundle
 	fetch = +refs/heads/*:refs/remotes/origin/*
-[branch "master"]
-
 ```
 Remember to replace the "..." with your actual path.
 
-Now both "machines" are set up to pull their changes from their respective bundles. But just to make this clearer, let's change the default remote name of "origin" in both files to be "bundle" so we make it clear what these "remotes" really represent.
+Now both "machines" are set up to pull their changes from their respective bundles. Let's test it.
+
+In the "Machine_B" area, add a line to the Java program:
+
+```
+public class hello {
+
+  public static void main ( String args[] ) {
+    System.out.println ( "Hello World!!" );
+    System.out.println ( "Last changed on Machine_B." );
+  }
+
+}
+```
+Commit the changes:
+
+```
+Machine_B$ git add -u
+Machine_B$ git commit -m "Added a last changed on Machine_B line."
+```
+
+Now create a new bundle to send back to Machine_A:
+
+```
+Machine_B$ git bundle create ../coolproj.bundle master
+```
+Just as before, that bundled file (Machine_B/mystuff/test/coolproj.bundle) can be transmitted by any means back to Machine_A. In this case, just copy the file to replace the version in Machine_A's location. Then in the Machine_A/myfiles/coolproj directory, execute a "git pull" and observe the changes:
+
+```
+From / ... /Machine_A/myfiles/coolproj.bundle
+ * branch            master     -> FETCH_HEAD
+Updating #######..#######
+Fast-forward
+ hello.java | 1 +
+ 1 file changed, 1 insertion(+)
+```
+That shows the update. Now the project can be updated on Machine_A again:
+
+```
+public class hello {
+
+  public static void main ( String args[] ) {
+    System.out.println ( "Hello World!!" );
+    System.out.println ( "Last changed on Machine_B." );
+    System.out.println ( "Last changed on Machine_A." );
+  }
+
+}
+```
+Commit and bundle as was done on Machine_B:
+```
+Machine_A$ git add -u
+Machine_A$ git commit -m "Added a line written on Machine_A."
+Machine_A$ git bundle create ../coolproj.bundle master
+```
+Then send the "coolproj.bundle" file back to Machine_B where it can be pulled from and tested:
+
+```
+Machine_B$ git pull origin master
+Machine_B$ make run
+```
+
+That's the same process used to share a git repository between machines that are actually different.
