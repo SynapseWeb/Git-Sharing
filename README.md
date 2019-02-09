@@ -83,4 +83,52 @@ Then change directory to that location (cd ../../../Machine_B/mystuff/test) and 
 ```
 git clone -b master coolproj.bundle coolproj
 ```
-This will create a subdirectory named "coolproj" which is a duplicate of the original.
+This will create a subdirectory named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original.
+
+This is where things get a little tricky. When git clones from a repository, it will generally create a "remote" from the location of the "upstream" source. Since this clone was done from a bundle file, the "remote" will be that file. Look inside the file:
+
+Machine_B/mystuff/test/coolproj/.git/config
+
+You should find something that looks like this:
+
+```
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = / ... /Machine_B/mystuff/test/coolproj.bundle
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+```
+The "url" line will generally have the full path (shown here as "...") to your bundled file. As far as Git is concerned, that's the "upstream" location to pull new commits from. Yet, it's just a file in your file system.
+
+Now if you look at the "config" file in your original "Machine_A" repository, you'll only find this:
+
+```
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+```
+It has no remote option or no branch option. But we can add them manually (and possibly other ways) so that the bundle is the same as any remote repository that we can pull from. Change the file "/Machine_A/myfiles/coolproj/.git/config" to be:
+
+```
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = / ... /Machine_A/myfiles/coolproj.bundle
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+
+```
+Remember to replace the "..." with your actual path.
+
+Now both "machines" are set up to pull their changes from their respective bundles. But just to make this clearer, let's change the default remote name of "origin" in both files to be "bundle" so we make it clear what these "remotes" really represent.
