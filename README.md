@@ -6,7 +6,7 @@ Assume that you want to share a project stored in GIT between two collaborators 
 
 ### Practice on a single computer
 
-Because each Git repository is self contained, bundle sharing can be practiced by creating two separate repositories on the same computer. Since we'll be pretending that they're on different machines, create two folder names something like:
+Because each Git repository is self contained, bundle sharing can be practiced by creating two separate repositories on the same computer. Since we'll be pretending that they're on different machines, create two folders somewhere named something like:
 
 * .../Machine_A
 * .../Machine_B
