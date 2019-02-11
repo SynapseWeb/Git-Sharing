@@ -18,7 +18,7 @@ Inside each machine's folder, you can create an arbitrarily long subdirectory tr
 * .../Machine_A/myfiles/coolproj
 * .../Machine_B/mystuff/test/coolproj
 
-Let's assume that the project is started on Machine_A and has a Java source file (hello.java) and make file (makefile):
+Let's assume that the project is started on Machine_A (in the "coolproj" directory) and has a Java source file (hello.java) and make file (makefile):
 
 ```
 public class hello {
