@@ -4,19 +4,19 @@
 Help on sharing GIT repositories between various machines (Windows, Linux, Mac, non-networked, etc)
 
 ## Bundle Sharing
-Assume that you want to share a project stored in GIT between two collaborators without a shared repository. This can be done by using a "bundle" file instead of a shared repository. A "bundle" file can be created by any developer and then distributed to the other developers who can use it to update their own local repositories. All of the history and merging is retained just as in a shared repository. This section describes how to accomplish this using a simple example which can be performed on a single computer (for practice) or between multiple computers as needed.
+Suppose you want to share a project stored in GIT between two collaborators without a shared repository. This can be done using a "bundle" file instead of a shared repository. A "bundle" file can be created by any developer and then distributed to the other developers who can use it to update their own local repositories. All of the history and merging is retained just as in a shared repository. This section describes how to accomplish this using a simple example which can be performed on a single computer (for practice) or between multiple computers as needed.
 
 ### Practice on a single computer
 
 Because each Git repository is self contained, bundle sharing can be practiced by creating two separate repositories on the same computer. Since we'll be pretending that they're on different machines, create two folders somewhere named something like:
 
-* .../Machine_A
-* .../Machine_B
+* .../shared_path/Machine_A
+* .../shared_path/Machine_B
 
 Inside each machine's folder, you can create an arbitrarily long subdirectory tree to get to the actual project files. That might looks something like this:
 
-* .../Machine_A/myfiles/coolproj
-* .../Machine_B/mystuff/test/coolproj
+* .../shared_path/Machine_A/myfiles/coolproj
+* .../shared_path/Machine_B/mystuff/test/coolproj
 
 Let's assume that the project is started on Machine_A (in the "coolproj" directory) and has a Java source file (hello.java) and make file (makefile):
 
@@ -65,38 +65,35 @@ To keep line endings straight right from the beginning, create a ".gitattributes
 Create the initial git repository (if one doesn't already exist):
 ```
 Machine_A$ cd Machine_A/myfiles/coolproj
-Machine_A$ git init
-Machine_A$ git add hello.java
-Machine_A$ git add makefile
-Machine_A$ git add .gitattributes
-Machine_A$ git commit -m "Initial versions of hello.java and makefile in cool project." 
+.../Machine_A/myfiles/coolproj$ git init
+.../Machine_A/myfiles/coolproj$ git add hello.java
+.../Machine_A/myfiles/coolproj$ git add makefile
+.../Machine_A/myfiles/coolproj$ git add .gitattributes
+.../Machine_A/myfiles/coolproj$ git commit -m "Initial versions of hello.java and makefile in cool project." 
 ```
 Now we're ready to create the initial bundle for the master branch of this repository. The resulting bundle file can be created anywhere, but that location should remain fixed because it will be referenced from git as if it were a real repository. For this example, we will create it directly above our "coolproj" directory with a name of "coolproj.bundle". We do this with:
 
 ```
-Machine_A$ git bundle create ../coolproj.bundle master
+.../Machine_A/myfiles/coolproj$ git bundle create ../coolproj.bundle master
 ```
 Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to .../Machine_B/mystuff/test/coolproj.bundle as shown here:
 
 ```
-Machine_A$ cp ../coolproj.bundle ../../../Machine_B/mystuff/test/
+.../Machine_A/myfiles/coolproj$ cp ../coolproj.bundle ../../../Machine_B/mystuff/test/
 ```
 
-Then change directory to that location (cd ../../../Machine_B/mystuff/test) and issue the "git clone" command:
-
+At this point, you could switch to that new directory (via cd ../../../Machine_B/mystuff/test), but since we're simulating two machines, it's advisable to open another command shell window for commands on the "B" machine. In either case, you will need to have the current directory set to ".../Machine_B/mystuff/test". Then issue the "git clone" command:
 ```
-Machine_B$ git clone -b master coolproj.bundle coolproj
+.../Machine_B/mystuff/test$ git clone -b master coolproj.bundle coolproj
 ```
-This will create a subdirectory named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original. You can change directory to that location and build the files:
-
+This will create a subdirectory (if it doesn't already exist) named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original. You can work in that new directory to edit and build the code:
 ```
-Machine_B$ cd coolproj
-Machine_B$ make run
+.../Machine_B/mystuff/test$ cd coolproj
+.../Machine_B/mystuff/test/coolproj$ make run
 ```
+This is where things get a little tricky. When git clones from a repository, it will generally create a "remote" from the location of the "upstream" source. Since the "clone" on "Machine_B" was done from a bundle file, the "remote" will be that file. Look inside the file:
 
-This is where things get a little tricky. When git clones from a repository, it will generally create a "remote" from the location of the "upstream" source. Since this clone was done from a bundle file, the "remote" will be that file. Look inside the file:
-
-```Machine_B/mystuff/test/coolproj/.git/config```
+```.../Machine_B/mystuff/test/coolproj/.git/config```
 
 You should find something that looks like this:
 
@@ -113,7 +110,7 @@ You should find something that looks like this:
 	remote = origin
 	merge = refs/heads/master
 ```
-The "url" line will generally have the full path (shown here as "...") to your bundled file. As far as Git is concerned, that's the "upstream" location to pull new commits from. Yet, it's just a file in your file system.
+The "url" line will generally have the full path (shown here as "...") to your bundled file. As far as Git is concerned, that's the "upstream" location to pull new commits from. Yet, it's just a file in your file system. You could change that long path to be just "../coolproj.bundle" to make it relative to the project. For now, we can leave the long path.
 
 Now if you look at the "config" file in your original "Machine_A" repository, you'll only find this:
 
@@ -124,13 +121,13 @@ Now if you look at the "config" file in your original "Machine_A" repository, yo
 	bare = false
 	logallrefupdates = true
 ```
-It has no remote option. But we can add it with the "git remote" command:
+It has no remote option because it was not cloned from an existing repository. But we can add a "remote" with the "git remote" command:
 
 ```
 git remote add origin ../coolproj.bundle
 ```
 
-Now the file ("/Machine_A/myfiles/coolproj/.git/config") should look like this:
+Now the file (".../Machine_A/myfiles/coolproj/.git/config") should look like this:
 
 ```
 [core]
@@ -159,16 +156,16 @@ public class hello {
 Commit the changes:
 
 ```
-Machine_B$ git add -u
-Machine_B$ git commit -m "Added a last changed on Machine_B line."
+.../Machine_B/mystuff/test/coolproj$ git add -u
+.../Machine_B/mystuff/test/coolproj$ git commit -m "Added a last changed on Machine_B line."
 ```
 
 Now create a new bundle to send back to Machine_A:
 
 ```
-Machine_B$ git bundle create ../coolproj.bundle master
+.../Machine_B/mystuff/test/coolproj$ git bundle create ../coolproj.bundle master
 ```
-Just as before, that bundled file (Machine_B/mystuff/test/coolproj.bundle) can be transmitted by any means back to Machine_A. In this case, just copy the file to replace the version in Machine_A's location. Then in the Machine_A/myfiles/coolproj directory, execute a ```"git pull"``` and observe the changes:
+Just as before, that bundled file (.../Machine_B/mystuff/test/coolproj.bundle) can be transmitted by any means back to Machine_A. In this case, just copy the file to replace the version in Machine_A's location. Then in the Machine_A/myfiles/coolproj directory, execute a ```"git pull"``` and observe the changes:
 
 ```
 From / ... /Machine_A/myfiles/coolproj.bundle
@@ -193,15 +190,15 @@ public class hello {
 ```
 Commit and bundle as was done on Machine_B:
 ```
-Machine_A$ git add -u
-Machine_A$ git commit -m "Added a line written on Machine_A."
-Machine_A$ git bundle create ../coolproj.bundle master
+.../Machine_A/myfiles/coolproj$ git add -u
+.../Machine_A/myfiles/coolproj$ git commit -m "Added a line written on Machine_A."
+.../Machine_A/myfiles/coolproj$ git bundle create ../coolproj.bundle master
 ```
 Then send the "coolproj.bundle" file back to Machine_B where it can be pulled from and tested:
 
 ```
-Machine_B$ git pull origin master
-Machine_B$ make run
+.../Machine_B/mystuff/test/coolproj$ git pull origin master
+.../Machine_B/mystuff/test/coolproj$ make run
 ```
 
 That's the same process used to share a git repository between machines that are actually different.
