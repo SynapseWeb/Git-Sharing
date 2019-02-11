@@ -76,16 +76,23 @@ Now we're ready to create the initial bundle for the master branch of this repos
 ```
 Machine_A$ git bundle create ../coolproj.bundle master
 ```
-Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to:
+Now the entire repository has been "bundled up" into a file at: Machine_A/myfiles/coolproj.bundle. This file could be shared with other developers by any method available (email, sneakernet, carrier pigeon, ...). In our example, we're just going to copy that file to .../Machine_B/mystuff/test/coolproj.bundle as shown here:
 
-.../Machine_B/mystuff/test/coolproj.bundle
+```
+Machine_A$ cp ../coolproj.bundle ../../../Machine_B/mystuff/test/
+```
 
 Then change directory to that location (cd ../../../Machine_B/mystuff/test) and issue the "git clone" command:
 
 ```
 Machine_B$ git clone -b master coolproj.bundle coolproj
 ```
-This will create a subdirectory named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original.
+This will create a subdirectory named "coolproj" which is a duplicate of the original. It will have all of the source files and all of the history of the original. You can change directory to that location and build the files:
+
+```
+Machine_B$ cd coolproj
+Machine_B$ make run
+```
 
 This is where things get a little tricky. When git clones from a repository, it will generally create a "remote" from the location of the "upstream" source. Since this clone was done from a bundle file, the "remote" will be that file. Look inside the file:
 
@@ -117,7 +124,13 @@ Now if you look at the "config" file in your original "Machine_A" repository, yo
 	bare = false
 	logallrefupdates = true
 ```
-It has no remote option. But we can add it manually (and possibly other ways) so that the bundle is the same as any remote repository that we can pull from. Change the file "/Machine_A/myfiles/coolproj/.git/config" to be:
+It has no remote option. But we can add it with the "git remote" command:
+
+```
+git remote add origin ../coolproj.bundle
+```
+
+Now the file ("/Machine_A/myfiles/coolproj/.git/config") should look like this:
 
 ```
 [core]
@@ -126,11 +139,9 @@ It has no remote option. But we can add it manually (and possibly other ways) so
 	bare = false
 	logallrefupdates = true
 [remote "origin"]
-	url = /.../Machine_A/myfiles/coolproj.bundle
+	url = ../coolproj.bundle
 	fetch = +refs/heads/*:refs/remotes/origin/*
 ```
-Remember to replace the "..." with your actual path.
-
 Now both "machines" are set up to pull their changes from their respective bundles. Let's test it.
 
 In the "Machine_B" area, add a line to the Java program:
