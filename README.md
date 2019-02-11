@@ -126,7 +126,7 @@ Now if you look at the ```".../Machine_A/myfiles/coolproj/.git/config"``` file i
 It has no "remote" option because it was not cloned from an existing repository. Remember that this (Machine A) version was created with ```"git init"``` when the project was started (without any cloning). But we can add a "remote" with the "git remote" command:
 
 ```
-git remote add origin ../coolproj.bundle
+.../Machine_A/myfiles/coolproj$ git remote add origin ../coolproj.bundle
 ```
 
 Now the file (".../Machine_A/myfiles/coolproj/.git/config") should look like this:
@@ -161,17 +161,23 @@ Commit the changes:
 .../Machine_B/mystuff/test/coolproj$ git add -u
 .../Machine_B/mystuff/test/coolproj$ git commit -m "Added a last changed on Machine_B line."
 ```
-View the log to see the history with ```"git log"```.
+View the log to see the history with ```"git log"```. You should see both of the commit messages (the original done on "Machine_A" and the one you just added on "Machine_B"). By default, the most recent commit messages are shown at the top.
 
 Now create a new bundle with that history to send back to Machine_A:
 
 ```
 .../Machine_B/mystuff/test/coolproj$ git bundle create ../coolproj.bundle master
 ```
-Just as before, that bundled file (```.../Machine_B/mystuff/test/coolproj.bundle```) can be transmitted by any means back to "Machine_A". In this case, just copy the file to replace the version in Machine_A's location. Then in the ```.../Machine_A/myfiles/coolproj directory```, execute a ```"git pull"``` and observe the changes:
-
+Just as before, that bundled file (```.../Machine_B/mystuff/test/coolproj.bundle```) can be transmitted by any means back to "Machine_A". In this case, just copy the file to replace the version in Machine_A's location:
 ```
-From / ... /Machine_A/myfiles/coolproj.bundle
+.../Machine_B/mystuff/test/coolproj$ cp ../coolproj.bundle ../../../../Machine_A/myfiles/coolproj.bundle
+```
+Then in the ```.../Machine_A/myfiles/coolproj directory```, execute a ```"git pull origin master"``` and observe the changes:
+```
+.../Machine_A/myfiles/coolproj$ git pull origin master
+```
+```
+From ../coolproj.bundle
  * branch            master     -> FETCH_HEAD
 Updating #######..#######
 Fast-forward
@@ -179,7 +185,6 @@ Fast-forward
  1 file changed, 1 insertion(+)
 ```
 That shows the update that had been created in the Machine_B repository.  You can verify that with another ```"git log"``` command on Machine A. You should see the original commit along with the commit done on Machine B.
-
 
 Now the project can be updated on Machine_A again. Add a third print line to the source code file:
 
@@ -200,13 +205,17 @@ Commit and bundle the same way that it had been done on Machine_B:
 .../Machine_A/myfiles/coolproj$ git commit -m "Added a line written on Machine_A."
 .../Machine_A/myfiles/coolproj$ git bundle create ../coolproj.bundle master
 ```
-Check the log again (with ```"git log"```) to verify that there are now three commits.
+Check the log again (with ```"git log"```) to verify that there are now three commits in the repository on Machine A.
 
-Then "send" (copy) the "coolproj.bundle" file back to Machine_B (by copying coolproj.bundl) where it can be pulled from and tested:
+Then "send" the "coolproj.bundle" file back to Machine_B (by copying coolproj.bundle) where it can be pulled from and tested:
 
 ```
+.../Machine_B/mystuff/test/coolproj$ cp ../../../../Machine_A/myfiles/coolproj.bundle ../coolproj.bundle
 .../Machine_B/mystuff/test/coolproj$ git pull origin master
+.../Machine_B/mystuff/test/coolproj$ git log
 .../Machine_B/mystuff/test/coolproj$ make run
 ```
 
-That's the same process used to share a git repository between machines that are actually different.
+Both machines will have the same history and the same files. You can use these two repositories to experiment with changes that cause conflicts and require merging.
+
+While this tutorial was conducted on the same machine, it could have been done on two different machines running different operating systems (as long as they both have "git"). The initial ".gitattributes" file sets the parameters needed to handle line ending differences between Windows and non-Windows computers.
